@@ -1,0 +1,91 @@
+//Q: https://leetcode.com/problems/maximal-rectangle/?envType=daily-question&envId=2024-04-13
+//IMP for more understanding solve this question first: largest-rectangle-in-histogram, NSL and NSR.
+
+const maximalRectangle = function (matrix) {
+    if (matrix.length === 0) {
+        return 0;
+    }
+    const row = matrix.length;
+    const col = matrix[0].length;
+    let maxArea = 0;
+    let heightArray = new Array(col).fill(0);
+    for (let i = 0; i < row; i++) {
+        for (let j = 0; j < col; j++) {
+
+            if (matrix[i][j] === "0") {
+                heightArray[j] = 0;
+            } else {
+                heightArray[j] += 1;
+            }
+        }
+        maxArea = Math.max(maxArea, maxAreaOfHeightArray(heightArray));
+    }
+    return maxArea;
+};
+function maxAreaOfHeightArray(heightArray) {
+    const n = heightArray.length;
+    let right = NSR(heightArray);
+    let left = NSL(heightArray);
+    let width = [];
+    for (let i = 0; i < n; i++) {
+        width[i] = right[i] - left[i] - 1;
+    }
+    let maxArea = 0;
+    for (let i = 0; i < n; i++) {
+        let a = width[i] * heightArray[i];
+        if (maxArea < a) {
+            maxArea = a;
+        }
+    }
+    return maxArea;
+}
+function NSR(heights) {
+    const stack = [];
+    const n = heights.length;
+    const pseudoIndex = n;
+    const right = new Array(n).fill(0);
+    for (let i = n - 1; i >= 0; i--) {
+        if (stack.length === 0) {
+            right[i] = pseudoIndex;
+        } else {
+            while (
+                stack.length > 0 &&
+                heights[stack[stack.length - 1]] >= heights[i]
+            ) {
+                stack.pop();
+            }
+            if (stack.length === 0) {
+                right[i] = pseudoIndex;
+            } else {
+                right[i] = stack[stack.length - 1];
+            }
+        }
+        stack.push(i);
+    }
+    return right;
+}
+function NSL(heights) {
+    const stack = [];
+    const n = heights.length;
+    const pseudoIndex = -1;
+    const left = new Array(n).fill(0);
+    for (let i = 0; i < n; i++) {
+        if (stack.length === 0) {
+            left[i] = pseudoIndex;
+        } else {
+            while (
+                stack.length > 0 &&
+                heights[stack[stack.length - 1]] >= heights[i]
+            ) {
+                stack.pop();
+            }
+            if (stack.length === 0) {
+                left[i] = pseudoIndex;
+            } else {
+                left[i] = stack[stack.length - 1];
+            }
+        }
+        stack.push(i);
+    }
+    return left;
+}
